@@ -21,6 +21,6 @@ def handler(event,context):
   data=[]
   for i in ret.items:
     print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
-    data.push("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+    data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
 	
   cfnresponse.send(event, context, cfnresponse.SUCCESS, {"data": " ".join(data)})
