@@ -1,5 +1,6 @@
 from kubernetes import client, config
 from shutil import copyfile
+import cfnresponse
 
 def handler(event,context):
   # Check the cert paths are relative to the working folder
@@ -17,5 +18,9 @@ def handler(event,context):
   v1 = client.CoreV1Api()
   print("Listing pods with their IPs:")
   ret = v1.list_pod_for_all_namespaces(watch=False)
+  data=[]
   for i in ret.items:
     print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+    data.push("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+	
+  cfnresponse.send(event, context, cfnresponse.SUCCESS, {"data": " ".join(data)})
