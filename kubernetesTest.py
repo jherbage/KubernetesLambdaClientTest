@@ -1,4 +1,5 @@
 from kubernetes import client, config
+from shutil import copyfile
 
 def handler(event,context):
   # Check the cert paths are relative to the working folder
@@ -8,6 +9,8 @@ def handler(event,context):
     f2.write(line.replace('/certs/', ''))
   f1.close()
   f2.close()
+  copyfile('admin.pem', '/tmp/admin.pem')
+  copyfile('admin-key.pem', '/tmp/admin-key.pem')
   # Configs can be set in Configuration class directly or using helper utility
   config.load_kube_config('/tmp/config-updated')
 
