@@ -109,12 +109,26 @@ def handler(event,context):
     #print("Listing pods with their IPs:")
 
     extensions_v1beta1 = client.ExtensionsV1beta1Api()
-    deployment = create_deployment_object(numberOfWorkerNodes)
-
-    create_deployment(extensions_v1beta1, deployment)
-
-    update_deployment(extensions_v1beta1, deployment)
-    time.sleep(20)
+    #deployment = create_deployment_object(numberOfWorkerNodes)
+	with open("nginx_deployment.yaml", "rt") as fin:
+      with open("nginx_deployment_updated.yaml", "wt") as fout:
+        for line in fin:
+            fout.write(line.replace('numberOfWorkerNodes', numberOfWorkerNodes))
+			
+    with open("nginx_deployment_updated.yaml") as f:
+      dep = yaml.safe_load(f)
+      #deployment = create_deployment_object(numberOfWorkerNodes)
+	
+      create_deployment(extensions_v1beta1, dep)
+	  
+    time.sleep(20)	
+    #with open(path.join(path.dirname(__file__), "nginx-update.yaml")) as f:
+	#  f.replace("numberOfWorkerNodes", numberOfWorkerNodes)
+    #  update_dep = yaml.safe_load(f)
+    #  update_deployment(extensions_v1beta1, update_dep)
+	  
+    #time.sleep(20)
+	
     ret = v1.list_pod_for_all_namespaces(watch=False)
     data=[]
     for i in ret.items:
