@@ -5,10 +5,11 @@ import yaml
 from os import path
 import time
 import json
+import boto3
 
 DEPLOYMENT_NAME = "nginx-deployment"
 
-def create_deployment_object():
+def create_deployment_object(numberOfWorkerNodes):
   # Configureate Pod template container
   container = client.V1Container(
         name="nginx",
@@ -20,7 +21,7 @@ def create_deployment_object():
         spec=client.V1PodSpec(containers=[container]))
   # Create the specification of deployment
   spec = client.ExtensionsV1beta1DeploymentSpec(
-        replicas=3,
+        replicas=numberOfWorkerNodes,
         template=template)
   # Instantiate the deployment object
   deployment = client.ExtensionsV1beta1Deployment(
@@ -62,8 +63,35 @@ def delete_deployment(api_instance):
   print("Deployment deleted. status='%s'" % str(api_response.status))
 	
 def handler(event,context):
-  print json.dumps(event)
-  if 'RequestType' in event and event['RequestType'] == 'Create':
+
+  # Only bother when creating or updating the stack
+  if 'RequestType' in event and ( event['RequestType'] == 'Create' or event['RequestType'] == 'Update') :
+    # Get number of worker nodes
+    WorkerASGName = event['ResourceProperties']['WorkerASG']
+    asg_client = boto3.client('autoscaling', region_name=event['ResourceProperties']['Region'])
+  
+    asg_response = asg_client.describe_auto_scaling_groups(AutoScalingGroupNames=[WorkerASGName])
+
+    instance_ids = [] # List to hold the instance-ids
+
+    for i in asg_response['AutoScalingGroups']:
+      for k in i['Instances']:
+        instance_ids.append(k['InstanceId'])
+
+    ec2_response = ec2_client.describe_instances(
+         InstanceIds = instance_ids
+         )   
+    print instance_ids #This line will print the instance_ids
+
+    private_ip = [] # List to hold the Private IP Address
+
+    for instances in ec2_response['Reservations']:
+       for ip in instances['Instances']:
+         private_ip.append(ip['PrivateIpAddress'])
+    numberOfWorkerNodes=len(private_ip)
+  
+    print json.dumps(private_ip)
+
     # Check the cert paths are relative to the working folder
     f1 = open('config', 'r')
     f2 = open('/tmp/config-updated', 'w')
@@ -80,7 +108,7 @@ def handler(event,context):
     #print("Listing pods with their IPs:")
 
     extensions_v1beta1 = client.ExtensionsV1beta1Api()
-    deployment = create_deployment_object()
+    deployment = create_deployment_object(numberOfWorkerNodes)
 
     create_deployment(extensions_v1beta1, deployment)
 
@@ -91,7 +119,11 @@ def handler(event,context):
     for i in ret.items:
       print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
       data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
-
+	
+    # Test we can reach the port of nginx on the worker node it is deployed to
+	## Get the IP addresses of the worker nodes
+	
+	
     delete_deployment(extensions_v1beta1)
 	
     if 'StackId' in event:
