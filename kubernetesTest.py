@@ -61,37 +61,43 @@ def delete_deployment(api_instance):
   print("Deployment deleted. status='%s'" % str(api_response.status))
 	
 def handler(event,context):
-  # Check the cert paths are relative to the working folder
-  f1 = open('config', 'r')
-  f2 = open('/tmp/config-updated', 'w')
-  for line in f1:
-    f2.write(line.replace('/certs/', ''))
-  f1.close()
-  f2.close()
-  copyfile('admin.pem', '/tmp/admin.pem')
-  copyfile('admin-key.pem', '/tmp/admin-key.pem')
-  # Configs can be set in Configuration class directly or using helper utility
-  config.load_kube_config('/tmp/config-updated')
+  if hasattr( event, 'RequestType') and event['RequestType'] == 'Create':
+    # Check the cert paths are relative to the working folder
+    f1 = open('config', 'r')
+    f2 = open('/tmp/config-updated', 'w')
+    for line in f1:
+      f2.write(line.replace('/certs/', ''))
+    f1.close()
+    f2.close()
+    copyfile('admin.pem', '/tmp/admin.pem')
+    copyfile('admin-key.pem', '/tmp/admin-key.pem')
+    # Configs can be set in Configuration class directly or using helper utility
+    config.load_kube_config('/tmp/config-updated')
 
-  v1 = client.CoreV1Api()
-  #print("Listing pods with their IPs:")
+    v1 = client.CoreV1Api()
+    #print("Listing pods with their IPs:")
 
-  extensions_v1beta1 = client.ExtensionsV1beta1Api()
-  deployment = create_deployment_object()
+    extensions_v1beta1 = client.ExtensionsV1beta1Api()
+    deployment = create_deployment_object()
 
-  create_deployment(extensions_v1beta1, deployment)
+    create_deployment(extensions_v1beta1, deployment)
 
-  update_deployment(extensions_v1beta1, deployment)
-  time.sleep(300)
-  ret = v1.list_pod_for_all_namespaces(watch=False)
-  data=[]
-  for i in ret.items:
-    print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
-    data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+    update_deployment(extensions_v1beta1, deployment)
+   time.sleep(20)
+    ret = v1.list_pod_for_all_namespaces(watch=False)
+    data=[]
+    for i in ret.items:
+      print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+      data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
 
-  delete_deployment(extensions_v1beta1)
+    delete_deployment(extensions_v1beta1)
 	
-  try:
-    cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
-  except Exception as e:
-    print "couldnt respond to stack create: "+str(e)
+    try:
+      cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
+    except Exception as e:
+      print "couldnt respond to stack create: "+str(e)
+  else if hasattr( event, 'RequestType'):
+    try:
+      cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {})
+    except Exception as e:
+      print "couldnt respond to stack delete: "+str(e)    
