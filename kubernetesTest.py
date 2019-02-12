@@ -23,4 +23,4 @@ def handler(event,context):
     print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
     data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
 	
-  cfnresponse.send(event, context, cfnresponse.SUCCESS, {"data": " ".join(data)})
+  cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
