@@ -84,14 +84,14 @@ def handler(event,context):
          )   
     print instance_ids #This line will print the instance_ids
 
-    private_ip = [] # List to hold the Private IP Address
+    private_ips = [] # List to hold the Private IP Address as we will test the app on these
 
     for instances in ec2_response['Reservations']:
        for ip in instances['Instances']:
-         private_ip.append(ip['PrivateIpAddress'])
-    numberOfWorkerNodes=len(private_ip)
+         private_ips.append(ip['PrivateIpAddress'])
+    numberOfWorkerNodes=len(private_ips)
   
-    print json.dumps(private_ip)
+    print json.dumps(private_ips)
 
     # Check the cert paths are relative to the working folder
     f1 = open('config', 'r')
@@ -124,7 +124,7 @@ def handler(event,context):
     # Test we can reach the port of nginx on the worker node it is deployed to
 	## Get the IP addresses of the worker nodes
 	
-	
+    time.sleep(300)	
     delete_deployment(extensions_v1beta1)
 	
     if 'StackId' in event:
