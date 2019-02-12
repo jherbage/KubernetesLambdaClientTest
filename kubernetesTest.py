@@ -61,7 +61,7 @@ def delete_deployment(api_instance):
   print("Deployment deleted. status='%s'" % str(api_response.status))
 	
 def handler(event,context):
-  if hasattr( event, 'RequestType') and event['RequestType'] == 'Create':
+  if 'RequestType' in event and event['RequestType'] == 'Create':
     # Check the cert paths are relative to the working folder
     f1 = open('config', 'r')
     f2 = open('/tmp/config-updated', 'w')
@@ -92,12 +92,8 @@ def handler(event,context):
 
     delete_deployment(extensions_v1beta1)
 	
-    try:
+    if 'StackId' in event:
       cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
-    except Exception as e:
-      print "couldnt respond to stack create: "+str(e)
-  elif hasattr( event, 'RequestType'):
-    try:
+  elif 'RequestType' in event:
+    if 'StackId' in event:
       cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {})
-    except Exception as e:
-      print "couldnt respond to stack delete: "+str(e)    
