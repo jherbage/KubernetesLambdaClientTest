@@ -4,6 +4,7 @@ import cfnresponse
 import yaml
 from os import path
 import time
+import json
 
 DEPLOYMENT_NAME = "nginx-deployment"
 
