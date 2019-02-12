@@ -111,7 +111,7 @@ def handler(event,context):
     extensions_v1beta1 = client.ExtensionsV1beta1Api()
     #deployment = create_deployment_object(numberOfWorkerNodes)
     with open("nginx_deployment.yaml", "r") as fin:
-      newText=fin.read().replace('numberOfWorkerNodes', numberOfWorkerNodes)
+      newText=fin.read().replace('numberOfWorkerNodes', str(numberOfWorkerNodes))
     with open("nginx_deployment_updated.yaml", "w") as fout:
       fout.write(newText)
 			
