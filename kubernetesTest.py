@@ -3,6 +3,7 @@ from shutil import copyfile
 import cfnresponse
 import yaml
 from os import path
+import time
 
 DEPLOYMENT_NAME = "nginx-deployment"
 
@@ -81,7 +82,7 @@ def handler(event,context):
   create_deployment(extensions_v1beta1, deployment)
 
   update_deployment(extensions_v1beta1, deployment)
-  
+  time.sleep(300)
   ret = v1.list_pod_for_all_namespaces(watch=False)
   data=[]
   for i in ret.items:
