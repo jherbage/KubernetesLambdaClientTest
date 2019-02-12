@@ -69,7 +69,8 @@ def handler(event,context):
     # Get number of worker nodes
     WorkerASGName = event['ResourceProperties']['WorkerASG']
     asg_client = boto3.client('autoscaling', region_name=event['ResourceProperties']['Region'])
-  
+    ec2_client = boto3.client('ec2', region_name=event['ResourceProperties']['Region']) 
+	
     asg_response = asg_client.describe_auto_scaling_groups(AutoScalingGroupNames=[WorkerASGName])
 
     instance_ids = [] # List to hold the instance-ids
