@@ -1,6 +1,10 @@
 from kubernetes import client, config
 from shutil import copyfile
 import cfnresponse
+import yaml
+from os import path
+
+DEPLOYMENT_NAME = "nginx-deployment"
 
 def create_deployment_object():
   # Configureate Pod template container
