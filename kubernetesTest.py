@@ -96,7 +96,7 @@ def handler(event,context):
       cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
     except Exception as e:
       print "couldnt respond to stack create: "+str(e)
-  else if hasattr( event, 'RequestType'):
+  elif hasattr( event, 'RequestType'):
     try:
       cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {})
     except Exception as e:
