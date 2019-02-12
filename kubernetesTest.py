@@ -112,10 +112,10 @@ def handler(event,context):
     #deployment = create_deployment_object(numberOfWorkerNodes)
     with open("nginx_deployment.yaml", "r") as fin:
       newText=fin.read().replace('numberOfWorkerNodes', str(numberOfWorkerNodes))
-    with open("nginx_deployment_updated.yaml", "w") as fout:
+    with open("/tmp/nginx_deployment_updated.yaml", "w") as fout:
       fout.write(newText)
 			
-    with open("nginx_deployment_updated.yaml") as f:
+    with open("/tmp/nginx_deployment_updated.yaml") as f:
       dep = yaml.safe_load(f)
       #deployment = create_deployment_object(numberOfWorkerNodes)
 
