@@ -90,5 +90,7 @@ def handler(event,context):
 
   delete_deployment(extensions_v1beta1)
 	
-  if hasattr(event, 'StackId'):
+  try:
     cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
+  except Exception as e:
+    print "couldnt respond to stack create: "+str(e)
