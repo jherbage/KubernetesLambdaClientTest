@@ -110,7 +110,7 @@ def handler(event,context):
 
     extensions_v1beta1 = client.ExtensionsV1beta1Api()
     #deployment = create_deployment_object(numberOfWorkerNodes)
-	with open("nginx_deployment.yaml", "rt") as fin:
+    with open("nginx_deployment.yaml", "rt") as fin:
       with open("nginx_deployment_updated.yaml", "wt") as fout:
         for line in fin:
             fout.write(line.replace('numberOfWorkerNodes', numberOfWorkerNodes))
@@ -118,7 +118,7 @@ def handler(event,context):
     with open("nginx_deployment_updated.yaml") as f:
       dep = yaml.safe_load(f)
       #deployment = create_deployment_object(numberOfWorkerNodes)
-	
+
       create_deployment(extensions_v1beta1, dep)
 	  
     time.sleep(20)	
