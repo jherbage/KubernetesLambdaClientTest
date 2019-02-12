@@ -61,6 +61,7 @@ def delete_deployment(api_instance):
   print("Deployment deleted. status='%s'" % str(api_response.status))
 	
 def handler(event,context):
+  print json.dumps(event)
   if 'RequestType' in event and event['RequestType'] == 'Create':
     # Check the cert paths are relative to the working folder
     f1 = open('config', 'r')
