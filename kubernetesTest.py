@@ -6,6 +6,7 @@ from os import path
 import time
 import json
 import boto3
+import urllib2
 
 DEPLOYMENT_NAME = "nginx-deployment"
 
