@@ -81,7 +81,10 @@ def delete_service(api_instance, service):
   # Delete deployment
   api_response = api_instance.delete_namespaced_service(
     name=service['metadata']['name'],
-    namespace="default")
+    namespace="default",
+    body=client.V1DeleteOptions(
+      propagation_policy='Foreground',
+      grace_period_seconds=5))
   print("Service deleted. status='%s'" % str(api_response.status))
 
   
