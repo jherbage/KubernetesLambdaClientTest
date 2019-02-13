@@ -40,6 +40,13 @@ def create_deployment(api_instance, deployment):
     namespace="default")
   print("Deployment created. status='%s'" % str(api_response.status))
 
+def create_service(api_instance, service):
+  # Create deployement
+  api_response = api_instance.create_namespaced_service(
+    body=service,
+    namespace="default")
+  print("Service created. status='%s'" % str(api_response.status))
+
 
 def update_deployment(api_instance, deployment):
   # Update container image
@@ -116,10 +123,13 @@ def handler(event,context):
       fout.write(newText)
 			
     with open("/tmp/nginx_deployment_updated.yaml") as f:
-      dep = yaml.safe_load_all(f)
+      dep = yaml.safe_load(f)
+    with open("/tmp/nginx_service.yaml") as f:
+      service = yaml.safe_load(f)
       #deployment = create_deployment_object(numberOfWorkerNodes)
 
-      create_deployment(extensions_v1beta1, dep)
+    create_deployment(extensions_v1beta1, dep)
+    create_service(v1, service)
 	  
     time.sleep(20)
 	# Check we can contact port 30100 on both IPs
@@ -130,9 +140,9 @@ def handler(event,context):
         sys.exit(1)
       else:
         print "successfully contacted nginx container on "+ip+" port 30100"
-    with open("/tmp/nginx_deployment_update_port.yaml") as f:
-      dep_update = yaml.safe_load_all(f)
-      update_deployment(extensions_v1beta1, dep_update)
+    with open("/tmp/nginx_service_update_port.yaml") as f:
+      service_update = yaml.safe_load(f)
+      update_deployment(v1, service_update)
 	  
     time.sleep(20)
 	# Check we can contact port 30101 on both IPs
