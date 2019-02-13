@@ -136,7 +136,7 @@ def handler(event,context):
 	  
     time.sleep(20)
 	# Check we can contact port 30101 on both IPs
-	for ip in private_ips:
+    for ip in private_ips:
       contents = urllib2.urlopen("http://"+ip+":30101").read()
 	  if "nginx" not in contents.lower():
         print "Could not contact K8 node nginx container on "+ip+" port 30101"
