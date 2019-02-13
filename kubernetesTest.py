@@ -116,7 +116,7 @@ def handler(event,context):
       fout.write(newText)
 			
     with open("/tmp/nginx_deployment_updated.yaml") as f:
-      dep = yaml.safe_load(f)
+      dep = yaml.safe_load_all(f)
       #deployment = create_deployment_object(numberOfWorkerNodes)
 
       create_deployment(extensions_v1beta1, dep)
@@ -131,7 +131,7 @@ def handler(event,context):
       else:
         print "successfully contacted nginx container on "+ip+" port 30100"
     with open("/tmp/nginx_deployment_update_port.yaml") as f:
-      dep_update = yaml.safe_load(f)
+      dep_update = yaml.safe_load_all(f)
       update_deployment(extensions_v1beta1, dep_update)
 	  
     time.sleep(20)
