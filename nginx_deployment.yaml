@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: nginx
-  replicas: numberOfWorkerNodes # tells deployment to run 1 pods matching the template
+  replicas: 2 # tells deployment to run 1 pods matching the template
   template: # create pods using pod definition in this template
     metadata:
       labels:
@@ -28,15 +28,12 @@ metadata:
   namespace: default
   labels:
     app: nginx
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 spec:
-  externalTrafficPolicy: Local
   ports:
   - name: http
     port: 80
     protocol: TCP
-    targetPort: 80
+    nodePort: 30100
+  type: NodePort
   selector:
     app: nginx
-  type: LoadBalancer

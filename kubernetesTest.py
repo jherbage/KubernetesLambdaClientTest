@@ -121,24 +121,35 @@ def handler(event,context):
 
       create_deployment(extensions_v1beta1, dep)
 	  
-    time.sleep(20)	
-    #with open(path.join(path.dirname(__file__), "nginx-update.yaml")) as f:
-	#  f.replace("numberOfWorkerNodes", numberOfWorkerNodes)
-    #  update_dep = yaml.safe_load(f)
-    #  update_deployment(extensions_v1beta1, update_dep)
+    time.sleep(20)
+	# Check we can contact port 30100 on both IPs
+	for ip in private_ips:
+      contents = urllib2.urlopen("http://"+ip+":30100").read()
+	  if "nginx" not in contents.lower():
+        print "Could not contact K8 node nginx container on "+ip+" port 30100"
+        sys.exit(1)
+      else:
+        print "successfully contacted nginx container on "+ip+" port 30100"
+    with open("/tmp/nginx_deployment_update_port.yaml") as f:
+      dep_update = yaml.safe_load(f)
+      update_deployment(extensions_v1beta1, dep_update)
 	  
-    #time.sleep(20)
-	
+    time.sleep(20)
+	# Check we can contact port 30101 on both IPs
+	for ip in private_ips:
+      contents = urllib2.urlopen("http://"+ip+":30101").read()
+	  if "nginx" not in contents.lower():
+        print "Could not contact K8 node nginx container on "+ip+" port 30101"
+        sys.exit(1)
+      else:
+        print "successfully contacted nginx container on "+ip+" port 30101"
+		
     ret = v1.list_pod_for_all_namespaces(watch=False)
     data=[]
     for i in ret.items:
       print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
       data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
 	
-    # Test we can reach the port of nginx on the worker node it is deployed to
-	## Get the IP addresses of the worker nodes
-	
-    time.sleep(300)	
     delete_deployment(extensions_v1beta1)
 	
     if 'StackId' in event:
