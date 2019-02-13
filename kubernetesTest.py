@@ -143,7 +143,7 @@ def handler(event,context):
 			
     with open("/tmp/nginx_deployment_updated.yaml") as f:
       dep = yaml.safe_load(f)
-    with open("/tmp/nginx_service.yaml") as f:
+    with open("nginx_service.yaml") as f:
       service = yaml.safe_load(f)
       #deployment = create_deployment_object(numberOfWorkerNodes)
 
@@ -159,7 +159,7 @@ def handler(event,context):
         sys.exit(1)
       else:
         print "successfully contacted nginx container on "+ip+" port 30100"
-    with open("/tmp/nginx_service_update_port.yaml") as f:
+    with open("nginx_service_update_port.yaml") as f:
       service_update = yaml.safe_load(f)
       update_service(v1, service_update)
 	  
