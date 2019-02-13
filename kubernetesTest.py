@@ -53,22 +53,38 @@ def update_deployment(api_instance, deployment):
   deployment.spec.template.spec.containers[0].image = "nginx:1.9.1"
   # Update the deployment
   api_response = api_instance.patch_namespaced_deployment(
-    name=DEPLOYMENT_NAME,
+    name=deployment['metadata']['name'],
     namespace="default",
     body=deployment)
   print("Deployment updated. status='%s'" % str(api_response.status))
 
+def update_service(api_instance, service):
+  # Update the deployment
+  api_response = api_instance.patch_namespaced_service(
+    name=service['metadata']['name'],
+    namespace="default",
+    body=service)
+  print("Service updated. status='%s'" % str(api_response.status))
 
-def delete_deployment(api_instance):
+
+def delete_deployment(api_instance,deployment):
   # Delete deployment
   api_response = api_instance.delete_namespaced_deployment(
-    name=DEPLOYMENT_NAME,
+    name=['metadata']['name'],
     namespace="default",
     body=client.V1DeleteOptions(
       propagation_policy='Foreground',
       grace_period_seconds=5))
   print("Deployment deleted. status='%s'" % str(api_response.status))
-	
+
+def delete_service(api_instance, service):
+  # Delete deployment
+  api_response = api_instance.delete_namespaced_service(
+    name=service['metadata']['name'],
+    namespace="default")
+  print("Service deleted. status='%s'" % str(api_response.status))
+
+  
 def handler(event,context):
 
   # Only bother when creating or updating the stack
@@ -142,7 +158,7 @@ def handler(event,context):
         print "successfully contacted nginx container on "+ip+" port 30100"
     with open("/tmp/nginx_service_update_port.yaml") as f:
       service_update = yaml.safe_load(f)
-      update_deployment(v1, service_update)
+      update_service(v1, service_update)
 	  
     time.sleep(20)
 	# Check we can contact port 30101 on both IPs
@@ -160,7 +176,8 @@ def handler(event,context):
       print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
       data.append("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
 	
-    delete_deployment(extensions_v1beta1)
+    delete_deployment(extensions_v1beta1,dep)
+    delete_service(v1, service_update)
 	
     if 'StackId' in event:
       cfnresponse.send(event, context, cfnresponse.SUCCESS, "succeeded", {"data": " ".join(data)})
