@@ -71,7 +71,7 @@ def update_service(api_instance, service):
 def delete_deployment(api_instance,deployment):
   # Delete deployment
   api_response = api_instance.delete_namespaced_deployment(
-    name=['metadata']['name'],
+    name=deployment['metadata']['name'],
     namespace="default",
     body=client.V1DeleteOptions(
       propagation_policy='Foreground',
@@ -111,14 +111,14 @@ def handler(event,context):
          )   
     print instance_ids #This line will print the instance_ids
 
-    private_ips = [] # List to hold the Private IP Address as we will test the app on these
+    public_ips = [] # List to hold the Private IP Address as we will test the app on these - got to use public else would need NAT in the lambda subnet
 
     for instances in ec2_response['Reservations']:
        for ip in instances['Instances']:
-         private_ips.append(ip['PrivateIpAddress'])
-    numberOfWorkerNodes=len(private_ips)
+         public_ips.append(ip['PublicIpAddress'])
+    numberOfWorkerNodes=len(public_ips)
   
-    print json.dumps(private_ips)
+    print json.dumps(public_ips)
 
     # Check the cert paths are relative to the working folder
     f1 = open('config', 'r')
@@ -153,7 +153,7 @@ def handler(event,context):
 	  
     time.sleep(20)
 	# Check we can contact port 30100 on both IPs
-    for ip in private_ips:
+    for ip in public_ips:
       contents = urllib2.urlopen("http://"+ip+":30100").read()
       if "nginx" not in contents.lower():
         print "Could not contact K8 node nginx container on "+ip+" port 30100"
@@ -166,7 +166,7 @@ def handler(event,context):
 	  
     time.sleep(20)
 	# Check we can contact port 30101 on both IPs
-    for ip in private_ips:
+    for ip in public_ips:
       contents = urllib2.urlopen("http://"+ip+":30101").read()
       if "nginx" not in contents.lower():
         print "Could not contact K8 node nginx container on "+ip+" port 30101"
