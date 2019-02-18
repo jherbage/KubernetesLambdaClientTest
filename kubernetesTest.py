@@ -109,8 +109,10 @@ def handler(event,context):
         for k in i['Instances']:
           if k['LifecycleState'] == 'InService':
             instance_ids.append(k['InstanceId'])
-      time.sleep(30)
-      timeout=timeout - 30
+      # dont bother to sleep unless no list
+      if len(instance_ids) == 0:
+        time.sleep(30)
+        timeout=timeout - 30
 
     ec2_response = ec2_client.describe_instances(
          InstanceIds = instance_ids
