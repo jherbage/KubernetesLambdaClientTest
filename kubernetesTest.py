@@ -102,9 +102,15 @@ def handler(event,context):
 
     instance_ids = [] # List to hold the instance-ids
 
-    for i in asg_response['AutoScalingGroups']:
-      for k in i['Instances']:
-        instance_ids.append(k['InstanceId'])
+	# need at least one healthy instance to proceed else we would get all ec2instances back in next query 
+    timeout=300
+    while len(instance_ids) == 0 and timeout > 0:
+      for i in asg_response['AutoScalingGroups']:
+        for k in i['Instances']:
+          if k['LifecycleState'] == 'InService':
+            instance_ids.append(k['InstanceId'])
+      time.sleep(30)
+      timeout=timeout - 30
 
     ec2_response = ec2_client.describe_instances(
          InstanceIds = instance_ids
