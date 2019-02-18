@@ -100,7 +100,6 @@ def handler(event,context):
 	
     asg_response = asg_client.describe_auto_scaling_groups(AutoScalingGroupNames=[WorkerASGName])
 
-    print "response is: "+json.dumps(asg_response)
     instance_ids = [] # List to hold the instance-ids
 
     for i in asg_response['AutoScalingGroups']:
